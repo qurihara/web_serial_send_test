@@ -27,7 +27,6 @@
         try {
 //          port = await navigator.serial.requestPort({filters:[filter]});
           port = await navigator.serial.requestPort();
-          console.leg("port got.")
           await port.open({ baudRate: 115200 });
           console.log("接続");
         } catch (e) {
