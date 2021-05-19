@@ -7,6 +7,10 @@
 
   <body>
 <div>Teachable Machine Image Model</div>
+<button onclick="onStartButtonClick()">接続</button>
+<button id="write01">書き込み1</button>
+<button id="write02">書き込み2</button>
+
 <button type="button" onclick="init()">Start</button>
 <div id="webcam-container"></div>
 <div id="label-container"></div>
@@ -63,7 +67,45 @@
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
             labelContainer.childNodes[i].innerHTML = classPrediction;
         }
+        sendByPrediction(prediction);
     }
+
+    async function sendByPrediction(prediction){
+        if (prediction[1].probability > 0.8){
+            writeText('bbb\n');
+            console.log("fire!");
+        }
+    }
+
+    const button01 = document.getElementById("write01");
+      const button02 = document.getElementById("write02");
+      button01.addEventListener("click", function () {writeText('aaa\n');}, false);
+      button02.addEventListener("click", function () {writeText('bbb\n');}, false);
+
+      let port;
+
+      const filter = {
+        usbVendorId: 0x0d28 // microbit
+      };
+
+      async function onStartButtonClick() {
+        try {
+//          port = await navigator.serial.requestPort({filters:[filter]});
+          port = await navigator.serial.requestPort();
+          await port.open({ baudRate: 115200 });
+          console.log("接続");
+        } catch (e) {
+          console.log("Error:" +e);
+        }
+      }
+
+      async function writeText(text) {
+        const encoder = new TextEncoder();
+        const writer = port.writable.getWriter();
+        await writer.write(encoder.encode(text));
+        console.log("テキスト書き込み: " + text);
+        writer.releaseLock();
+      }
 </script>
 </body>
 </html>
