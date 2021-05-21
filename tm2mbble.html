@@ -13,8 +13,7 @@
 <body>
 <div class="container">
     <div class="title margin">
-        <p id="title">BlueJelly Sample</p>
-        <p id="subtitle">WriteでUART送信</p>
+        <p id="title">Teachable Machine 2 Microbit with BlueJelly</p>
     </div>
     <div>Teachable Machine Image Model</div>
     <button type="button" onclick="init()">Start</button>
@@ -77,6 +76,7 @@ ble.onConnectGATT = function (uuid) {
 //Write後の処理
 //--------------------------------------------------
 ble.onWrite = function(uuid){
+  writing = false;
   document.getElementById('uuid_name').innerHTML = uuid;
   document.getElementById('status').innerHTML = "written data"
 }
@@ -99,7 +99,7 @@ document.getElementById('write').addEventListener('click', function() {
         // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
     
         // the link to your model provided by Teachable Machine export panel
-        const URL = "./my_model/";
+        const URL = "https://teachablemachine.withgoogle.com/models/EpV0qMaMS/";
     
         let model, webcam, labelContainer, maxPredictions;
     
@@ -128,6 +128,8 @@ document.getElementById('write').addEventListener('click', function() {
             for (let i = 0; i < maxPredictions; i++) { // and class labels
                 labelContainer.appendChild(document.createElement("div"));
             }
+
+            // setInterval(manager, 1000/fps);  
         }
     
         async function loop() {
@@ -149,18 +151,48 @@ document.getElementById('write').addEventListener('click', function() {
         }
 
     async function sendByPrediction(prediction){
-        if (prediction[1].probability > 0.8){
-            writeText('bbb\n');
-            console.log("fire!");
+      // get the best prediction
+      let max_id = 0;
+      let max = -1;
+      for (let i=0;i<maxPredictions;i++){
+        if (prediction[i].probability > max){
+          max_id = i;
+          max = prediction[i].probability;
         }
+      }
+      if (prediction.className != "neutral" && prediction[max_id].probability > 0.8){
+            writeText(prediction.className);
+      }
+      // if (prediction[1].probability > 0.8){
+      //       // sdata = 'right';
+      //       writeText('right');
+      // }
     }
     async function writeText(str){
-        const textEncoder = new TextEncoder();
-        const text_data = str;
-        const text_data_encoded = textEncoder.encode(text_data + '\n');
-        //write
-        ble.write('UUID1', text_data_encoded);
+        if (writing == false){
+          writing = true;
+          const textEncoder = new TextEncoder();
+          const text_data = str;
+          const text_data_encoded = textEncoder.encode(text_data + '\n');
+          //write
+          ble.write('UUID1', text_data_encoded);
+        }else{
+          console.log("busy");
+        }
     }
+
+    var writing = false;
+    // var sdata = "";
+    // var fps = 1;
+    // var manager = async function(){
+    //   console.log(sdata);
+    //   if (sdata != ""){
+    //     writeText(data);    
+    //     sdata = "";
+    //     console.log("fire!");
+    //   }
+    // }
+
 
 </script>
 </body>
