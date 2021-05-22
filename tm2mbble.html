@@ -171,14 +171,10 @@ document.getElementById('write').addEventListener('click', function() {
           max = prediction[i].probability;
         }
       }
-      if (prediction[max_id].className != "neutral" && prediction[max_id].probability > 0.8 && prediction[max_id].className != lastsent){
+      if (prediction[max_id].probability > 0.9 && prediction[max_id].className != lastsent){
             writeText(prediction[max_id].className);
             lastsent = prediction[max_id].className
       }
-      if (prediction[max_id].className == "neutral" && prediction[max_id].probability > 0.8){
-        lastsent = prediction[max_id].className;
-      }
-
     }
     async function writeText(str){
         if (writing == false){
